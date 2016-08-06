@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: bydxM9BUOw5+AaXaY5YCcReIPhnhMYF4bXofyeb/++tSPofIvzySLs43LASQpEkHqzWlMb7dmfH+HOnRHRPXh14VKcXb2abPkglyMJqjektpsg+HL8QdOJR7+bab1WEWyfRv1bkE/qk+gCkFGBgdfgLztsLk7A9jIyhX5frRLZcO53Ba3cazWJ/EGmhUtjusTIOaRxiybOxp3fIOzsL1OUb/+VnVZQi6aPPZpgLRUa+xBNLoE7PsfizE3sMKuR/JRio3sedARv+krQJWH7cTIpNWaPgC7cK+279PTsG2fEpPiOmj9+wwOW3Dh7eG8gOT9YBqwnpWQLKyAUvwzqRo/MjXVLfDHFEU0Wc3i/oNdioKzyBeKNZwEkLLNd7KegkoZG6JGmi0hD7CLZ2Qyfz1FacQTlpjwH1RBX4J/FkzwLbTJDz9vLBaN6x4kNnljZt4u35N8ELVDet90zPcF/SXf+NDnMdiBsrDnbjef5DSBWv1v1TLc57mOsKjPXnFzsvi32gUciE/ZY7SH+CgHi+X8x6wuTl7esNnjkLmBmYoVsPUUM9qINWvhYGdtbxoMrXr9cHpjfxE7aRyajZHpRao+qAru80xp2gQmEzOAhqDIdmqRYCBrxJyCcm613dQ8w6fWRQwmnul4IfIf2ubXUHsdltXc//SsjrGE3BFkyk7E/M=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/United-States-Census-Figures-Back-to-1630_115
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
